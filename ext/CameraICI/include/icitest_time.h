@@ -29,7 +29,7 @@
 
 #include <time.h>
 
-struct time_measurements
+extern struct time_measurements
 {
 	struct timespec app_start_time;
 	struct timespec before_md_init_time;

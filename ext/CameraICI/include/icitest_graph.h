@@ -49,11 +49,11 @@
 
 #define TARGET_NUM_SECONDS 5
 
-PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
-PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
-PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOES;
-PFNGLPROGRAMBINARYOESPROC glProgramBinaryOES;
-PFNGLGETPROGRAMBINARYOESPROC glGetProgramBinaryOES;
+extern PFNEGLCREATEIMAGEKHRPROC eglCreateImageKHR;
+extern PFNEGLDESTROYIMAGEKHRPROC eglDestroyImageKHR;
+extern PFNGLEGLIMAGETARGETTEXTURE2DOESPROC glEGLImageTargetTexture2DOES;
+extern PFNGLPROGRAMBINARYOESPROC glProgramBinaryOES;
+extern PFNGLGETPROGRAMBINARYOESPROC glGetProgramBinaryOES;
 
 struct buffer {
 	drm_intel_bo *bo;
@@ -136,11 +136,10 @@ struct window {
 	} gl;
 };
 
-struct wl_shell_surface_listener wl_shell_surface_listener;
-const struct wl_callback_listener frame_listener;
-struct wl_callback_listener configure_callback_listener;
-const struct wl_callback_listener frame_listener;
-const struct wl_registry_listener registry_listener;
+extern struct wl_shell_surface_listener wl_shell_surface_listener;
+extern const struct wl_callback_listener frame_listener;
+extern struct wl_callback_listener configure_callback_listener;
+extern const struct wl_registry_listener registry_listener;
 
 void destroy_surface(struct window *window);
 void init_gl(struct window *window);

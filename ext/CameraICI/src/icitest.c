@@ -56,6 +56,7 @@ int pixelformat;
 int stream_id=-1;
 int m_ICIEnabled = 1;
 struct wl_display *g_display_connection = NULL;
+struct ici_stream_format stream_fmt;
 
 static void polling_thread(void *data)
 {

@@ -36,8 +36,8 @@
 
 #include "icitest_graph.h"
 
-struct ici_stream_format stream_fmt;
-unsigned long buffer_size;
+extern struct ici_stream_format stream_fmt;
+extern unsigned long buffer_size;
 
 int open_device(const char* dev_name);
 void close_device(int dev_fd);
