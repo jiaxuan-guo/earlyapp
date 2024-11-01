@@ -25,7 +25,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <string>
-#include <boost/thread.hpp>
+#include <thread>
 #include <alsa/asoundlib.h>
 
 #include "EALog.h"
@@ -112,7 +112,7 @@ namespace earlyapp
     {
         LINF_(TAG, "AudioDevice play");
 
-        m_PlayThread = new boost::thread(playbackALSA, m_WavFileName.c_str());
+        m_PlayThread = new std::thread(playbackALSA, m_WavFileName.c_str());
     }
 
 
@@ -160,9 +160,9 @@ namespace earlyapp
             if((pcm = snd_pcm_open(&pALSAHandle, DEFAULT_PCM, SND_PCM_STREAM_PLAYBACK, 0)) ==  0)
                 break;
             LERR_(TAG, "Failed to open default PCM device: " << snd_strerror(pcm));
-            if (cnt > 16) 
+            if (cnt > 16)
                 return;
-            boost::this_thread::sleep(boost::posix_time::milliseconds(200));
+            std::this_thread::sleep_for(std::chrono::milliseconds(200));
         }
 
         for (int cnt = 0; ; cnt++) {
@@ -176,11 +176,11 @@ namespace earlyapp
                     50000)) == 0)
                 break;
             LERR_(TAG, "Fail to set configuration: " << snd_strerror(pcm));
-            if (cnt > 16) { 
+            if (cnt > 16) {
                 snd_pcm_close(pALSAHandle);
                 return;
             }
-            boost::this_thread::sleep(boost::posix_time::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
 
         while((readSize = fread(buff, 1, buffSize, fpWav)) > 0)

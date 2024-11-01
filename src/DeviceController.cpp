@@ -31,7 +31,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <sys/stat.h>
-#include <boost/thread.hpp>
+#include <thread>
 #include "EALog.h"
 #include "Configuration.hpp"
 #include "DeviceController.hpp"
@@ -94,7 +94,7 @@ namespace earlyapp
                 GstVideoDevice::getInstance() : pVid;
             m_pCam = (pCam == nullptr) ?
                 GstCameraDevice::getInstance() : pCam;
-	     
+
 	    if(m_pConf->useCsicam())
             {
 		m_pCam = (pCam == nullptr) ?
@@ -227,22 +227,26 @@ namespace earlyapp
 		if(m_pAud != nullptr && m_pVid != nullptr)
 		{
 			/* Create Audio and Video play threads */
-			m_pThreadAudGrp = new(boost::thread_group);
-			m_pThreadVidGrp = new(boost::thread_group);
-			m_pThreadAud = m_pThreadAudGrp->create_thread(
-				boost::bind(&AudioPlay_Thread,m_pConf,m_pAud));
-			m_pThreadVid = m_pThreadVidGrp->create_thread(
-				boost::bind(&VideoPlay_Thread,m_pVid));
+            m_pThreadAudGrp.emplace_back(std::bind(&AudioPlay_Thread, m_pConf, m_pAud));
+            m_pThreadAud = &m_pThreadAudGrp.back();
+            m_pThreadVidGrp.emplace_back(std::bind(&VideoPlay_Thread, m_pVid));
+            m_pThreadVid = &m_pThreadVidGrp.back();
 			/* Join both audio and video play threads */
-			if(m_pThreadAudGrp && m_pThreadVidGrp)
+			if(!m_pThreadAudGrp.empty() && !m_pThreadVidGrp.empty())
 			{
-				m_pThreadAudGrp->join_all();
-				m_pThreadVidGrp->join_all();
-				delete m_pThreadAudGrp;
-				delete m_pThreadVidGrp;
-				m_pThreadAudGrp = nullptr;
+                for (auto& thread : m_pThreadAudGrp) {
+                    if (thread.joinable()) {
+                        thread.join();
+                    }
+                }
+                m_pThreadAudGrp.clear();
+                for (auto& thread : m_pThreadVidGrp) {
+                    if (thread.joinable()) {
+                        thread.join();
+                    }
+                }
+                m_pThreadVidGrp.clear();
 				m_pThreadAud = nullptr;
-				m_pThreadVidGrp = nullptr;
 				m_pThreadVid = nullptr;
 			}
 		}

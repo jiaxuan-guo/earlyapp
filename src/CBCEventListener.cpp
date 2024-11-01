@@ -26,8 +26,8 @@
 
 #include <set>
 #include <boost/format.hpp>
-#include <boost/thread.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
+#include <thread>
+#include <chrono>
 
 #include "EALog.h"
 #include "CBCEventListener.hpp"
@@ -136,8 +136,7 @@ namespace earlyapp
             return;
         }
 
-        boost::posix_time::time_duration li =
-            boost::posix_time::milliseconds(loopInterval);
+        std::chrono::milliseconds li(loopInterval);
 
         // CBCEvent checking loop.
         // Keep checks CBC event device and notify.
@@ -164,7 +163,7 @@ namespace earlyapp
             }
 
             if(keepObserve && loopInterval > 0)
-                boost::this_thread::sleep(li);
+                std::this_thread::sleep_for(li);
         } while(keepObserve && m_pEvDev);
 
     }

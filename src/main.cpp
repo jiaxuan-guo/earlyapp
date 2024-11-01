@@ -27,7 +27,7 @@
 #include <iostream>
 #include <string>
 #include <exception>
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/bind.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
@@ -76,7 +76,7 @@ int main(int argc, char* argv[])
     int fd;
     int ret;
     char buf[8];
-    bool bNeedResumeToRVC = false; 
+    bool bNeedResumeToRVC = false;
 
 #ifdef USE_DMESGLOG
      dmesgLogInit();
@@ -109,19 +109,6 @@ int main(int argc, char* argv[])
 
 
     /*
-      Event threading.
-     */
-    boost::thread_group* pThreadGrp = nullptr;
-    try
-    {
-        pThreadGrp = new boost::thread_group();
-    }
-    catch(const boost::thread_resource_error& e)
-    {
-        handleProgramLaunchingError(e);
-    }
-
-    /*
       Start event tracker.
      */
     earlyapp::CBCEventDevice* evDev = nullptr;
@@ -146,6 +133,7 @@ int main(int argc, char* argv[])
 
 
     std::shared_ptr<earlyapp::CBCEvent> pEv;
+    std::vector<std::thread> pThreadGrp;
     pEv = evDev->readEvent();
     /*
       Device controller - requires SystemStatusTracker.
@@ -188,7 +176,7 @@ int main(int argc, char* argv[])
     // Set event device.
     evListener.setEventDevice(evDev);
 
-    
+
     // System status tracker subscribes CBC events.
     evListener.addSubscriber(&ssTracker);
 
@@ -196,20 +184,14 @@ int main(int argc, char* argv[])
     /*
       Start an event loop in thread.
      */
-    boost::thread* pEvThread = nullptr;
+    std::thread* pEvThread = nullptr;
     try
     {
-        pEvThread = pThreadGrp->create_thread(
-            boost::bind(
-                &earlyapp::CBCEventListener::observeAndNotify,
-                &evListener,
-                true, EARLYAPP_EVENT_LOOP_INTERVAL));
+        pThreadGrp.emplace_back(std::bind(&earlyapp::CBCEventListener::observeAndNotify,
+                &evListener, true, EARLYAPP_EVENT_LOOP_INTERVAL));
+        pEvThread = &pThreadGrp.back();
     }
-    catch(const boost::thread_resource_error& e)
-    {
-        handleProgramLaunchingError(e);
-    }
-    catch(const boost::lock_error& e)
+    catch(const std::system_error& e)
     {
         handleProgramLaunchingError(e);
     }
@@ -224,9 +206,7 @@ int main(int argc, char* argv[])
     {
 
         //LINF_(TAG, "In main thread");
-	boost::this_thread::sleep(
-	    boost::posix_time::milliseconds(EARLYAPP_DEVICE_LOOP_INTERVAL));
-
+    std::this_thread::sleep_for(std::chrono::milliseconds(EARLYAPP_DEVICE_LOOP_INTERVAL));
         fd=open(pConf->resumesyncPath().c_str(), O_RDWR);
         if (fd < 0)
         {
@@ -237,7 +217,7 @@ int main(int argc, char* argv[])
             ret = read(fd, buf, 1);
             if( ret == 1 )
             {
-                if((buf[0] == 0x32) && ((ssTracker.currentState() == earlyapp::SystemStatusTracker::eSTATE_RVC)||(ssTracker.currentState() == earlyapp::SystemStatusTracker::eSTATE_BOOTRVC))) 
+                if((buf[0] == 0x32) && ((ssTracker.currentState() == earlyapp::SystemStatusTracker::eSTATE_RVC)||(ssTracker.currentState() == earlyapp::SystemStatusTracker::eSTATE_BOOTRVC)))
                 {
                     // Going to suspend
                     // Inject forward gear signal to transit to Idle to close the camera streaming.
@@ -270,7 +250,7 @@ int main(int argc, char* argv[])
                 LINF_(TAG, "Exiting");
                 bLoopCtrl = false;
                 devCtrl.stopAllDevices();
-                pEvThread->interrupt();
+                //pEvThread->interrupt();//TODO
             }
             // Switching from forward gear to reverse.
             else
@@ -292,7 +272,7 @@ int main(int argc, char* argv[])
             LERR_(TAG, "Exiting due to no device.");
             bLoopCtrl = false;
             devCtrl.stopAllDevices();
-            pEvThread->interrupt();
+            //TODO pEvThread->interrupt();
         }
     } while(bLoopCtrl);
 
@@ -302,20 +282,20 @@ int main(int argc, char* argv[])
     try
     {
         // Join threads.
-        pThreadGrp->join_all();
+        for (auto& thread : pThreadGrp) {
+            if (thread.joinable()) {
+                thread.join();
+            }
+        }
+        pThreadGrp.clear();
     }
-    catch(const boost::lock_error&)
-    {
-        LWRN_(TAG, "Thread joining error.");
-    }
-    catch(const boost::thread_resource_error&)
+    catch(const std::system_error&)
     {
         LWRN_(TAG, "Thread resource error.");
     }
 
     // Release resources.
     delete evDev;
-    delete pThreadGrp;
     LINF_(TAG, "Finishing...");
 
 #ifdef USE_DMESGLOG

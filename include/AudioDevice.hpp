@@ -27,7 +27,7 @@
 #pragma once
 
 #include <string>
-#include <boost/thread.hpp>
+#include <thread>
 
 #include "OutputDevice.hpp"
 #include "Configuration.hpp"
@@ -119,7 +119,7 @@ namespace earlyapp
         /*
           @brief ALSA playback thread.
          */
-        boost::thread* m_PlayThread = nullptr;
+        std::thread* m_PlayThread = nullptr;
 
         /**
           @brief Releases audio resources except pipeline.

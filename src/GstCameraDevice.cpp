@@ -25,7 +25,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <string>
-#include <boost/thread.hpp>
+#include <thread>
 #include <boost/algorithm/string/replace.hpp>
 
 #include "EALog.h"

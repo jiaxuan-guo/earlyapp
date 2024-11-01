@@ -28,7 +28,7 @@
 
 #include "OutputDevice.hpp"
 #include "Configuration.hpp"
-#include <boost/thread.hpp>
+#include <thread>
 
 #ifdef __cplusplus
 extern "C" {
@@ -100,8 +100,8 @@ namespace earlyapp
 	/*
           Boost thread.
          */
-        boost::thread_group* m_pThreadGrpCsiRVC = nullptr;
-        boost::thread* m_pThreadCsiRVC = nullptr;
+        std::vector<std::thread> m_pThreadGrpCsiRVC;
+        std::thread* m_pThreadCsiRVC = nullptr;
 
         static void displayCamera(set_up, void*);
 

@@ -116,10 +116,8 @@ namespace earlyapp
 #endif
 	m_CSIEnabled = 0;
 	// Create a thread for the camera dispaly and run.
-	m_pThreadGrpCsiRVC = new(boost::thread_group);
-	m_pThreadCsiRVC = m_pThreadGrpCsiRVC->create_thread(
-			boost::bind(
-			&displayCamera, m_csiParam, m_pGPIOClass));
+    m_pThreadGrpCsiRVC.emplace_back(std::bind(&displayCamera, m_csiParam, m_pGPIOClass));
+    m_pThreadCsiRVC = &m_pThreadGrpCsiRVC.back();
     }
 
     /*
@@ -132,11 +130,14 @@ namespace earlyapp
         {
             CsiStopDisplay(0);
             // Wait for thread join.
-            if(m_pThreadGrpCsiRVC)
+            if(!m_pThreadGrpCsiRVC.empty())
             {
-                m_pThreadGrpCsiRVC->join_all();
-                delete m_pThreadGrpCsiRVC;
-                m_pThreadGrpCsiRVC = nullptr;
+                for (auto& thread : m_pThreadGrpCsiRVC) {
+                    if (thread.joinable()) {
+                        thread.join();
+                    }
+                }
+                m_pThreadGrpCsiRVC.clear();
                 m_pThreadCsiRVC = nullptr;
             }
         }

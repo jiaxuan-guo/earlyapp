@@ -27,7 +27,7 @@
 #pragma once
 
 #include <gst/gst.h>
-#include <boost/thread.hpp>
+#include <thread>
 #include "Configuration.hpp"
 
 namespace earlyapp
@@ -121,8 +121,8 @@ namespace earlyapp
         /*
           Boost thread.
          */
-        boost::thread_group* m_pThreadGrp = nullptr;
-        boost::thread* m_pThread = nullptr;
+        std::vector<std::thread> m_pThreadGrp;
+        std::thread* m_pThread = nullptr;
 
 
         /*

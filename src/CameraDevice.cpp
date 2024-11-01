@@ -26,7 +26,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <string>
-#include <boost/thread.hpp>
+#include <thread>
 
 #include "EALog.h"
 #include "OutputDevice.hpp"
@@ -135,10 +135,8 @@ namespace earlyapp
 		m_ICIEnabled = ConfigureICI(false);
 	}
 	// Create a thread for the camera dispaly and run.
-	m_pThreadGrpRVC = new(boost::thread_group);
-	m_pThreadRVC = m_pThreadGrpRVC->create_thread(
-			boost::bind(
-			&displayCamera, m_iciParam, m_stream_id, m_pGPIOClass));
+    m_pThreadGrpRVC.emplace_back(std::bind(&displayCamera, m_iciParam, m_stream_id, m_pGPIOClass));
+    m_pThreadRVC = &m_pThreadGrpRVC.back();
     }
 
     /*
@@ -151,11 +149,14 @@ namespace earlyapp
         {
             iciStopDisplay(0);
             // Wait for thread join.
-            if(m_pThreadGrpRVC)
+            if(!m_pThreadGrpRVC.empty())
             {
-                m_pThreadGrpRVC->join_all();
-                delete m_pThreadGrpRVC;
-                m_pThreadGrpRVC = nullptr;
+                for (auto& thread : m_pThreadGrpRVC) {
+                    if (thread.joinable()) {
+                        thread.join();
+                    }
+                }
+                m_pThreadGrpRVC.clear();
                 m_pThreadRVC = nullptr;
             }
         }

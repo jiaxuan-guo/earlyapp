@@ -88,10 +88,8 @@ namespace earlyapp
             m_pGSTLoop = g_main_loop_new(nullptr, false);
 
             // Create a thread for the camera dispaly and run.
-            m_pThreadGrp = new(boost::thread_group);
-            m_pThread = m_pThreadGrp->create_thread(
-                boost::bind(
-                    &displayLoop, m_pGSTPipeline, m_pGSTLoop));
+		    m_pThreadGrp.emplace_back(std::bind(&displayLoop, m_pGSTPipeline, m_pGSTLoop));
+            m_pThread = &m_pThreadGrp.back();
             m_pGSTBus = gst_element_get_bus(m_pGSTPipeline);
             m_pGSTMsg = gst_bus_timed_pop_filtered(
 		m_pGSTBus,
@@ -153,11 +151,14 @@ namespace earlyapp
         }
 
         // Wait for thread join.
-        if(m_pThreadGrp)
+        if(!m_pThreadGrp.empty())
         {
-            m_pThreadGrp->join_all();
-            delete m_pThreadGrp;
-            m_pThreadGrp = nullptr;
+            for (auto& thread : m_pThreadGrp) {
+                if (thread.joinable()) {
+                    thread.join();
+                }
+            }
+            m_pThreadGrp.clear();
             m_pThread = nullptr;
         }
 
