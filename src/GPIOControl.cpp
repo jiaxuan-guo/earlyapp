@@ -47,12 +47,14 @@ namespace earlyapp
     // Constructor.
     GPIOControl::GPIOControl(int gpioNumber, unsigned int peakSustainTime)
     {
+        std::ostringstream oss;
         // Disregards for wrong GPIO settings.
         if(gpioNumber > 0)
         {
             m_Valid = true;
             m_GPIONumber = gpioNumber;
-            LINF_(TAG, "GPIO output to " << gpioNumber);
+            oss << "GPIO output to " << gpioNumber;
+            LERR_(TAG, oss.str());
         }
         else
         {
@@ -62,7 +64,10 @@ namespace earlyapp
 
         // Peak time. x 1000 to make it ms.
         m_SustainTime = peakSustainTime * 1000;
-        LINF_(TAG, "Peak sustaining time(us): " << m_SustainTime);
+        oss.str("");
+        oss.clear();
+        oss << "Peak sustaining time(us): " << m_SustainTime;
+        LINF_(TAG, oss.str());
     }
 
     // Output GPIO.
@@ -71,6 +76,7 @@ namespace earlyapp
         std::string strGPIO = std::to_string(m_GPIONumber);
         const char* cstrGPIO = strGPIO.c_str();
         size_t gpioStrLen = strlen(cstrGPIO);
+        std::ostringstream oss;
 
         // Value path.
         int valueFd = open(valuePath()->c_str(), O_WRONLY);
@@ -80,7 +86,8 @@ namespace earlyapp
             int exportFd = open(exportPath()->c_str(), O_WRONLY);
             if(exportFd < 0)
             {
-                LERR_(TAG, "Failed to open export path:" << exportPath());
+                oss << "Failed to open export path:" << exportPath();
+                LERR_(TAG, oss.str());
                 return false;
             }
             write(exportFd, cstrGPIO, gpioStrLen);
@@ -90,7 +97,10 @@ namespace earlyapp
             int dirFd = open(directionPath()->c_str(), O_WRONLY);
             if (dirFd < 0)
             {
-                LERR_(TAG, "Failed to open direction:" << directionPath());
+                oss.str("");
+                oss.clear();
+                oss << "Failed to open direction:" << directionPath();
+                LERR_(TAG, oss.str());
                 return false;
             }
             write(dirFd, "out", (size_t)3);
@@ -100,7 +110,10 @@ namespace earlyapp
             valueFd = open(valuePath()->c_str(), O_WRONLY);
             if(valueFd < 0)
             {
-                LERR_(TAG, "Failed to open GPIO value: " << valuePath());
+                oss.str("");
+                oss.clear();
+                oss << "Failed to open GPIO value: " << valuePath();
+                LERR_(TAG, oss.str());
                 return false;
             }
         }

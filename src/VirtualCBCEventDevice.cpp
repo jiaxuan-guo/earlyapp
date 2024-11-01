@@ -45,7 +45,9 @@ namespace earlyapp
     {
         if(cbcDevice)
         {
-            LINF_(TAG, "Opening a file " << cbcDevice);
+            std::ostringstream oss;
+            oss << "Opening a file " << cbcDevice;
+            LINF_(TAG, oss.str());
             m_pFileName = strdup(cbcDevice);
             m_fdCBCDev = open(cbcDevice, O_CREAT | O_RDWR | O_SYNC, S_IRWXU);
 

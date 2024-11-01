@@ -161,7 +161,10 @@ namespace earlyapp
         }
         catch(std::bad_any_cast&)
         {
-            LERR_(TAG, "Map error for key " << key);
+
+            std::ostringstream oss;
+            oss << "Map error for key " << key;
+            LERR_(TAG, oss.str());
             valueStr = &nullStr;
         }
         return *valueStr;

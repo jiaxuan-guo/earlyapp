@@ -27,32 +27,30 @@
 #pragma once
 
 #ifdef USE_LOGOUTPUT
-#include <boost/log/core.hpp>
-#include <boost/log/trivial.hpp>
+#include <string>
+#include <sstream>
+#include <ctime>
+enum LogLevel {
+    INFO,
+    DEBUG,
+    WARNING,
+    ERROR,
+};
+
+
+void log(LogLevel level, const std::string& tag, const std::string& message);
 
 // Informative logs.
-#define LINF_(tag, str) \
-    BOOST_LOG_TRIVIAL(info) \
-    << "[" << tag << "] " \
-    << str
+#define LINF_(tag, str)  log(INFO, tag, str)
 
 // Debug logs.
-#define LDBG_(tag, str) \
-    BOOST_LOG_TRIVIAL(debug) \
-    << "[" << tag << "] " \
-    << str
+#define LDBG_(tag, str)  log(DEBUG, tag, str)
 
 // Warning logs.
-#define LWRN_(tag, str) \
-    BOOST_LOG_TRIVIAL(warning) \
-    << "[" << tag << "] " \
-    << str
+#define LWRN_(tag, str)  log(WARNING, tag, str)
 
 // Error logs.
-#define LERR_(tag, str) \
-    BOOST_LOG_TRIVIAL(error) \
-    << "[" << tag << "] " \
-    << str
+#define LERR_(tag, str)  log(ERROR, tag, str)
 
 #else
 // No log output

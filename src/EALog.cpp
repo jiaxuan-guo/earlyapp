@@ -30,6 +30,36 @@
 #include <unistd.h>
 #include "EALog.h"
 
+#ifdef USE_LOGOUTPUT
+
+void log(LogLevel level, const std::string& tag, const std::string& message) {
+    std::ostringstream oss;
+    std::time_t t = std::time(nullptr);
+    char timeStr[100];
+    std::strftime(timeStr, sizeof(timeStr), "%Y-%m-%d %H:%M:%S", std::localtime(&t));
+
+    oss << timeStr;
+    switch (level) {
+        case INFO:
+            oss << "[INFO]  ";
+            break;
+        case DEBUG:
+            oss << "[DEBUG]  ";
+            break;
+        case WARNING:
+            oss << "[WARNING]  ";
+            break;
+        case ERROR:
+            oss << "[ERROR]  ";
+            break;
+    }
+
+    oss << "[" << tag << "\ " << message;
+    std::cout << oss.str() << std::endl;
+}
+
+
+#endif
 
 #ifdef USE_DMESGLOG
 int dmesg_fd = 0;
@@ -46,8 +76,8 @@ int dmesgLogInit(void)
 
 /*
  Enabel logging to dmesg
- Example: 
- dmesgLogPrint(("testing-gst-init"); 
+ Example:
+ dmesgLogPrint(("testing-gst-init");
  */
 int dmesgLogPrint(const char* stringPtr)
 {
@@ -55,7 +85,7 @@ int dmesgLogPrint(const char* stringPtr)
 
     if (dmesg_fd > 0)
     {
-        ret=write(dmesg_fd, stringPtr, strlen(stringPtr)+1);	    
+        ret=write(dmesg_fd, stringPtr, strlen(stringPtr)+1);
     }
 
     return(ret);

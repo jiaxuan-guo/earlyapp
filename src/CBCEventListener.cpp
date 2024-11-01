@@ -150,7 +150,9 @@ namespace earlyapp
             // User injected event.
             if(m_InjEv != CBCEvent::eGEARSTATUS_UNKNOWN)
             {
-                LINF_(TAG, "User injected siganl: " << m_InjEv);
+                std::ostringstream oss;
+                oss << "User injected siganl: " << m_InjEv;
+                LINF_(TAG, oss.str());
                 pEv = std::make_shared<CBCEvent>(m_InjEv);
                 notify(pEv);
                 m_InjEv = CBCEvent::eGEARSTATUS_UNKNOWN;

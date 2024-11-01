@@ -47,7 +47,8 @@ namespace earlyapp
 
         if(cbcDevice)
         {
-            LINF_(TAG, "Opening device " << cbcDevice);
+            std::string message = std::string("Opening device ") + cbcDevice;
+            LINF_(TAG, message);
             m_fdCBCDev = open(cbcDevice, O_RDWR | O_NOCTTY | O_NDELAY);
 
             if(m_fdCBCDev > 0)
@@ -111,7 +112,8 @@ namespace earlyapp
             char* errMsg = strerror(errno);
             if(errMsg)
             {
-                LERR_(TAG, ": " << errMsg);
+                std::string message = std::string(": ") + errMsg;
+                LERR_(TAG, message);
             }
             return nullptr;
         }
@@ -129,7 +131,8 @@ namespace earlyapp
                 LERR_(TAG, "Failed to read CBC signal buffer");
                 if(errMsg)
                 {
-                    LERR_(TAG, ": " << errMsg);
+                    std::string message = std::string(": ") + errMsg;
+                    LERR_(TAG, message);
                 }
                 return nullptr;
             }
@@ -163,10 +166,12 @@ namespace earlyapp
             std::shared_ptr<CBCEvent> e = std::make_shared<CBCEvent>(cbcEv);
 
             std::ostringstream oss;
+            oss << "Buffer: " << std::hex << cbcSignalBuffer[0] << cbcSignalBuffer[1] << cbcSignalBuffer[2] << cbcSignalBuffer[3] << cbcSignalBuffer[4] << cbcSignalBuffer[5];
+            LINF_(TAG, oss.str());
+            oss.str("");
+            oss.clear();
             oss << "Got an event " << e->toString() << ":" << e->toEnum();
-
-            LINF_(TAG, "Buffer: " << std::hex << cbcSignalBuffer[0] << cbcSignalBuffer[1] << cbcSignalBuffer[2] << cbcSignalBuffer[3] << cbcSignalBuffer[4] << cbcSignalBuffer[5]);
-            LINF_(TAG, oss.str(););
+            LINF_(TAG, oss.str());
 
             return e;
         }

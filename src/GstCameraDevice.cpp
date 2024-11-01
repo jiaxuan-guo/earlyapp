@@ -100,17 +100,22 @@ namespace earlyapp
     {
         GstElement* pipeline = nullptr;
         GError* err = nullptr;
+        std::ostringstream oss;
 
         // Replace characters.
         replace_all(customGstCmd, "'", "");
         const char* launchStr = customGstCmd.c_str();
-        LINF_(TAG, "Custom pipeline: " << launchStr);
+        oss << "Custom pipeline: " << launchStr;
+        LINF_(TAG, oss.str());
 
         // GST parser not always return nullptr for errors.
         pipeline = gst_parse_launch(launchStr, &err);
         if(err)
         {
-            LERR_(TAG, "Failed to create custom camera pipeline: " << pipeline);
+            oss.str("");
+            oss.clear();
+            oss << "Failed to create custom camera pipeline: " << pipeline;
+            LERR_(TAG, oss.str());
             LERR_(TAG, err->message);
             return nullptr;
         }

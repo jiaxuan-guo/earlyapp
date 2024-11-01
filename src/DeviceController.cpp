@@ -366,7 +366,10 @@ namespace earlyapp
 
             struct stat st;
             snprintf(WLSocketPath, WAYLAND_SOCKET_PATH_LENGTH, "%s/%s", pXDGEnv, pWLDispEnv);
-            LINF_(TAG, "Waiting for wayland socket: " <<  WLSocketPath);
+
+            std::ostringstream oss;
+            oss << "Waiting for wayland socket: " <<  WLSocketPath;
+            LINF_(TAG, oss.str());
 
             while(stat(WLSocketPath, &st) != 0)
             {

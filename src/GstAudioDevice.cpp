@@ -130,6 +130,7 @@ namespace earlyapp
      */
     void GstAudioDevice::preparePlay(std::shared_ptr<DeviceParameter> playParam)
     {
+        std::ostringstream oss;
         LINF_(TAG, "GstAudioDevice preparePlay()");
 
         if(playParam != nullptr)
@@ -139,7 +140,8 @@ namespace earlyapp
 
             // Fetch a file name to play.
             std::string playFile = playParam->fileToPlay();
-            LINF_(TAG, "*Play file* " << playFile);
+            oss << "*Play file* " << playFile;
+            LINF_(TAG, oss.str());
 
             // Update audio source.
             g_object_set(G_OBJECT(m_pAudioSrc), "location", playFile.c_str(), nullptr);

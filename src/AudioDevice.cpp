@@ -86,6 +86,7 @@ namespace earlyapp
      */
     void AudioDevice::preparePlay(std::shared_ptr<DeviceParameter> playParam)
     {
+        std::ostringstream oss;
         LINF_(TAG, "AudioDevice preparePlay()");
 
         if(playParam != nullptr)
@@ -95,7 +96,8 @@ namespace earlyapp
 
             // Fetch a file name to play.
             m_WavFileName = playParam->fileToPlay();
-            LINF_(TAG, "*Play file* " << m_WavFileName);
+            oss << "*Play file* " << m_WavFileName;
+            LINF_(TAG, oss.str());
         }
         else
         {
@@ -123,6 +125,7 @@ namespace earlyapp
     {
         // Wav file info.
         WavHeader wavInfo;
+        std::ostringstream oss;
 
         /**
            Open the file.
@@ -130,7 +133,8 @@ namespace earlyapp
         FILE* fpWav = nullptr;
         if((fpWav = fopen(filePath, "rb")) == nullptr)
         {
-            LERR_(TAG, "Failed to open a wav file: " << filePath);
+            oss << "Failed to open a wav file: " << filePath;
+            LERR_(TAG, oss.str());
             return;
         }
 
@@ -140,7 +144,10 @@ namespace earlyapp
         size_t readHeaderSize = fread(&wavInfo, 1, sizeof(WavHeader), fpWav);
         if(readHeaderSize != sizeof(WavHeader))
         {
-            LERR_(TAG, "Failed to read wav header - size: " << readHeaderSize);
+            oss.str("");
+            oss.clear();
+            oss << "Failed to read wav header - size: " << readHeaderSize;
+            LERR_(TAG, oss.str());
             return;
         }
 
@@ -159,7 +166,10 @@ namespace earlyapp
         for (int cnt = 0; ; cnt++) {
             if((pcm = snd_pcm_open(&pALSAHandle, DEFAULT_PCM, SND_PCM_STREAM_PLAYBACK, 0)) ==  0)
                 break;
-            LERR_(TAG, "Failed to open default PCM device: " << snd_strerror(pcm));
+            oss.str("");
+            oss.clear();
+            oss << "Failed to open default PCM device: " << snd_strerror(pcm);
+            LERR_(TAG, oss.str());
             if (cnt > 16)
                 return;
             std::this_thread::sleep_for(std::chrono::milliseconds(200));
@@ -175,7 +185,10 @@ namespace earlyapp
                     1,
                     50000)) == 0)
                 break;
-            LERR_(TAG, "Fail to set configuration: " << snd_strerror(pcm));
+            oss.str("");
+            oss.clear();
+            oss << "Fail to set configuration: " << snd_strerror(pcm);
+            LERR_(TAG, oss.str());
             if (cnt > 16) {
                 snd_pcm_close(pALSAHandle);
                 return;
