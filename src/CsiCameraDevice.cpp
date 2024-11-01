@@ -25,7 +25,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <string>
-#include <boost/thread.hpp>
 
 #include "EALog.h"
 #include "OutputDevice.hpp"

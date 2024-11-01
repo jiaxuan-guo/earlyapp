@@ -26,7 +26,6 @@
 
 #include <string>
 #include <gst/gst.h>
-#include <boost/format.hpp>
 
 #include "EALog.h"
 #include "OutputDevice.hpp"

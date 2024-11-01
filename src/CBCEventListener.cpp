@@ -25,8 +25,8 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <set>
-#include <boost/format.hpp>
 #include <thread>
+#include <sstream>
 #include <chrono>
 
 #include "EALog.h"
@@ -79,9 +79,11 @@ namespace earlyapp
         }
         else
         {
+            std::ostringstream oss;
+            oss << "Device has changed from " << pOldDev << " to " << pEvDev;
+
             m_pEvDev = pEvDev;
-            LINF_(TAG, boost::str(
-                      boost::format("Device has changed from %x to %x") % pOldDev % pEvDev));
+            LINF_(TAG, oss.str());
         }
         return pOldDev;
     }
@@ -99,8 +101,9 @@ namespace earlyapp
         // Failed to add due to duplicatation.
         if(! r.second)
         {
-            LWRN_(TAG, boost::str(
-                      boost::format("Subscriber %x has not been added.") % pSub));
+            std::ostringstream oss;
+            oss << "Subscriber " << pSub << " has not been added.";
+            LWRN_(TAG, oss.str());
             return false;
         }
 

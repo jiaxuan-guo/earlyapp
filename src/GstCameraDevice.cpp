@@ -26,7 +26,6 @@
 
 #include <string>
 #include <thread>
-#include <boost/algorithm/string/replace.hpp>
 
 #include "EALog.h"
 #include "OutputDevice.hpp"
@@ -86,6 +85,14 @@ namespace earlyapp
         return createFixedPipeline(camSrc);
     }
 
+    void replace_all(std::string& str, const std::string& from, const std::string& to) {
+        size_t start_pos = 0;
+        while ((start_pos = str.find(from, start_pos)) != std::string::npos) {
+            str.replace(start_pos, from.length(), to);
+            start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
+        }
+    }
+
     /**
        Create a custom GStreamer pipeline.
      */
@@ -95,7 +102,7 @@ namespace earlyapp
         GError* err = nullptr;
 
         // Replace characters.
-        boost::replace_all(customGstCmd, "'", "");
+        replace_all(customGstCmd, "'", "");
         const char* launchStr = customGstCmd.c_str();
         LINF_(TAG, "Custom pipeline: " << launchStr);
 

@@ -27,10 +27,10 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>   // for close
 #include <errno.h>
 #include <string.h>
-#include <boost/format.hpp>
-
+#include <sstream>
 #include "EALog.h"
 #include "VirtualCBCEventDevice.hpp"
 #include "CBCEvent.hpp"
@@ -56,12 +56,10 @@ namespace earlyapp
             }
             else
             {
+                std::ostringstream oss;
+                oss << "Failed to open device " << cbcDevice << " (" << strerror(errno) << ")";
                 m_bOpenSuccess = false;
-                LERR_(TAG,
-                      boost::str(
-                          boost::format("Failed to open device %s (%s)")
-                          % cbcDevice
-                          % strerror(errno)));
+                LERR_(TAG, oss.str());
             }
         }
     }
@@ -102,11 +100,9 @@ namespace earlyapp
         CBCEvent::eCBCEvent cbcEv = (CBCEvent::eCBCEvent) atoi((const char*) cbcSignalBuffer);
         std::shared_ptr<CBCEvent> e = std::make_shared<CBCEvent>(cbcEv);
 
-        LINF_(TAG,
-              boost::str(
-                  boost::format("Got an event %s:%d")
-                  %e->toString()
-                  %e->toEnum()));
+        std::ostringstream oss;
+        oss << "Got an event " << e->toString() << ":" << e->toEnum();
+        LINF_(TAG, oss.str());
 
         // Erase previous data in the file.
         close(m_fdCBCDev);

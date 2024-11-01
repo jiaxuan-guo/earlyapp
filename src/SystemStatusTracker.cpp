@@ -24,12 +24,11 @@
 //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <boost/format.hpp>
-
 #include "EALog.h"
 #include "SystemStatusTracker.hpp"
 #include "CBCEvent.hpp"
-
+#include <sstream>
+#include <vector>
 // Tag for SystemStatusTracker.
 #define TAG "SST"
 
@@ -145,11 +144,10 @@ namespace earlyapp
     {
         eSystemState prvState = m_SysState;
         eSystemState nextState = m_SysState;
+        std::ostringstream oss;
+        oss << "Current state: " << stateToString() << "(" << m_SysState << "), signal: " << CBCEvent::toString(e) <<"("<<e<<")";
 
-        LINF_(TAG, boost::str(
-                  boost::format("Current state: %s(%d), signal: %s(%d)")
-                  % stateToString() % m_SysState
-                  % CBCEvent::toString(e) % e));
+        LINF_(TAG, oss.str());
 
         switch(m_SysState)
         {
@@ -239,11 +237,10 @@ namespace earlyapp
             m_StateMtx.lock();
             m_SysState = nextState;
             m_StateMtx.unlock();
+            std::ostringstream oss;
+            oss << "State changed from " << stateToString(prvState) << "(" << prvState << ") -> " << stateToString(nextState) <<"("<<nextState<<")";
 
-            LINF_(TAG, boost::str(
-                      boost::format("State changed from %s(%d) -> %s(%d)")
-                      % stateToString(prvState) % prvState
-                      % stateToString(nextState) % nextState));
+            LINF_(TAG, oss.str());
 
             // Application exit control.
             if(nextState == eSTATE_EXIT)
@@ -256,10 +253,11 @@ namespace earlyapp
         }
         else
         {
-            LWRN_(TAG,
-                  boost::str(
-                      boost::format("State won't be changed from %s(%d).")
-                      % stateToString(prvState) % prvState));
+
+            std::ostringstream oss;
+            oss << "tate won't be changed from " << stateToString(prvState) << " (" << prvState << ")";
+
+            LWRN_(TAG, oss.str());
 
             return false;
         }

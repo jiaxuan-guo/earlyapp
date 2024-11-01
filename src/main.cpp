@@ -28,10 +28,6 @@
 #include <string>
 #include <exception>
 #include <thread>
-#include <boost/bind.hpp>
-#include <boost/program_options.hpp>
-#include <boost/format.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <fcntl.h>
 
 #include "EALog.h"

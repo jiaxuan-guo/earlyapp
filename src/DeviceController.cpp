@@ -26,7 +26,6 @@
 
 #include <string>
 #include <vector>
-#include <boost/format.hpp>
 #include <mutex>
 #include <time.h>
 #include <unistd.h>

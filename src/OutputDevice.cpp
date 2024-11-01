@@ -25,7 +25,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <string>
-#include <boost/format.hpp>
 #include "EALog.h"
 #include "OutputDevice.hpp"
 
@@ -66,12 +65,15 @@ namespace earlyapp
     // Initialize.
     void OutputDevice::init(std::shared_ptr<Configuration> pConf)
     {
+        std::ostringstream oss;
+
         int gpioNumber = pConf->gpioNumber();
         unsigned int sustainTime = pConf->gpioSustain();
         if(gpioNumber > 0)
         {
-            LINF_(TAG, boost::str(
-                      boost::format("Setting GPIO %d with default sleep time") % gpioNumber));
+            LINF_(TAG, oss.str());
+
+            oss << "Setting GPIO " << gpioNumber << "with default sleep time";
             m_pGPIOCtrl = new GPIOControl(gpioNumber, sustainTime);
         }
     }

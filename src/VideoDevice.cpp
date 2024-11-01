@@ -25,7 +25,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <string>
-#include <boost/format.hpp>
 
 #include "EALog.h"
 #include "OutputDevice.hpp"
@@ -104,7 +103,7 @@ namespace earlyapp
         // Initialize decoding pipeline.
         m_pDecPipeline->Init(&m_Params);
 
-        
+
         LINF_(TAG, "VideoDevice initialized.");
     }
 

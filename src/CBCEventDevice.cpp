@@ -30,8 +30,8 @@
 #include <errno.h>
 #include <string.h>
 #include <poll.h>
-#include <boost/format.hpp>
-
+#include <unistd.h>
+#include <sstream>
 #include "EALog.h"
 #include "CBCEvent.hpp"
 #include "CBCEventDevice.hpp"
@@ -66,11 +66,10 @@ namespace earlyapp
             else
             {
                 m_bOpenSuccess = false;
-                LERR_(TAG,
-                      boost::str(
-                          boost::format("Failed to open device %s (%s)")
-                          % cbcDevice
-                          % strerror(errno)));
+                std::ostringstream oss;
+                oss << "Failed to open device " << cbcDevice << " (" << strerror(errno) << ")";
+
+                LERR_(TAG, oss.str());
             }
         }
     }
@@ -163,12 +162,11 @@ namespace earlyapp
             }
             std::shared_ptr<CBCEvent> e = std::make_shared<CBCEvent>(cbcEv);
 
+            std::ostringstream oss;
+            oss << "Got an event " << e->toString() << ":" << e->toEnum();
+
             LINF_(TAG, "Buffer: " << std::hex << cbcSignalBuffer[0] << cbcSignalBuffer[1] << cbcSignalBuffer[2] << cbcSignalBuffer[3] << cbcSignalBuffer[4] << cbcSignalBuffer[5]);
-            LINF_(TAG,
-                  boost::str(
-                      boost::format("Got an event %s:%d")
-                      %e->toString()
-                      %e->toEnum()));
+            LINF_(TAG, oss.str(););
 
             return e;
         }
