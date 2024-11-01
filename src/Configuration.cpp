@@ -26,8 +26,6 @@
 
 #include <iostream>
 #include <string>
-#include <boost/program_options.hpp>
-
 #include "EALog.h"
 #include "EAVersion.h"
 #include "Configuration.hpp"
@@ -56,8 +54,8 @@ namespace earlyapp
     const unsigned int Configuration::DEFAULT_DISPLAY_HEIGHT = DONT_CARE;
     const int Configuration::DEFAULT_GPIONUMBER = NOT_SET;
     const unsigned int Configuration::DEFAULT_GPIOSUSTAIN = 1;
-    const bool Configuration::DEFAULT_USE_GSTREAMER = false;
-    const bool Configuration::DEFAULT_USE_CSICAM = false;
+    const char* Configuration::DEFAULT_USE_GSTREAMER = "false";
+    const char* Configuration::DEFAULT_USE_CSICAM = "false";
     const char* Configuration::DEFAULT_GSTCAMCMD = "";
 
 
@@ -98,15 +96,6 @@ namespace earlyapp
     bool Configuration::isValid(void)
     {
         return m_Valid;
-    }
-
-    // Print usage.
-    void Configuration::printUsage(void)
-    {
-        if(m_pDesc != nullptr)
-        {
-            std::cerr << *m_pDesc << std::endl;
-        }
     }
 
     // Print version.
@@ -168,9 +157,9 @@ namespace earlyapp
 
         try
         {
-            valueStr = &(m_VM[key].as<std::string>());
+            valueStr = &(m_presult[key].as<std::string>());
         }
-        catch(const boost::bad_any_cast&)
+        catch(std::bad_any_cast&)
         {
             LERR_(TAG, "Map error for key " << key);
             valueStr = &nullStr;
@@ -181,43 +170,37 @@ namespace earlyapp
     // Display width
     unsigned int Configuration::displayWidth(void) const
     {
-        unsigned int w = m_VM[Configuration::KEY_DISPLAYWIDTH].as<unsigned int>();
-        return w;
+        return m_presult[Configuration::KEY_DISPLAYWIDTH].as<unsigned int>();
     }
 
     // Display height
     unsigned int Configuration::displayHeight(void) const
     {
-        unsigned h = m_VM[Configuration::KEY_DISPLAYHEIGHT].as<unsigned int>();
-        return h;
+        return m_presult[Configuration::KEY_DISPLAYHEIGHT].as<unsigned int>();
     }
 
     // GPIO output number
     int Configuration::gpioNumber(void) const
     {
-        int gpio = m_VM[Configuration::KEY_GPIONUMBER].as<int>();
-        return gpio;
+        return m_presult[Configuration::KEY_GPIONUMBER].as<int>();
     }
 
     // GPIO peak sustaining time in ms.
     unsigned int Configuration::gpioSustain(void) const
     {
-        unsigned int peakSustain = m_VM[Configuration::KEY_GPIOSUSTAIN].as<unsigned int>();
-        return peakSustain;
+        return m_presult[Configuration::KEY_GPIOSUSTAIN].as<unsigned int>();
     }
 
     // Use GStreamer
     bool Configuration::useGStreamer(void) const
     {
-        bool useGStreamer = m_VM[Configuration::KEY_USEGSTREAMER].as<bool>();
-        return useGStreamer;
+        return m_presult[Configuration::KEY_USEGSTREAMER].as<bool>();
     }
 
     // Use CsiCam
     bool Configuration::useCsicam(void) const
     {
-        bool useCsicam = m_VM[Configuration::KEY_USECSICAM].as<bool>();
-        return useCsicam;
+        return m_presult[Configuration::KEY_USECSICAM].as<bool>();
     }
 
     // GStreamer camera custom command.
@@ -229,11 +212,6 @@ namespace earlyapp
     // Destructor.
     Configuration::~Configuration(void)
     {
-        if(m_pDesc != nullptr)
-        {
-            delete m_pDesc;
-            m_pDesc = nullptr;
-        }
     }
 
     // Initialize program options.
@@ -241,8 +219,7 @@ namespace earlyapp
     {
         try
         {
-            m_pDesc = new boost::program_options::options_description{ "Allowed options" };
-
+            m_pDesc = std::make_unique<cxxopts::Options>("Early App", "Allowed options");
             m_pDesc->add_options()
                 // Help.
                 ("help", "Print usages.")
@@ -253,85 +230,83 @@ namespace earlyapp
                 // Camera input source.
                 // NOTE: Camera source option is supported with GStreamer.
                 ("camera-input,c",
-                 boost::program_options::value<std::string>()->default_value(Configuration::DEFAULT_CAMERA_INPUTSOURCE)->notifier(&checkCameraParameter),
-                 "Camera input source selection. Only supported with use-gstreamer option.")
+                "Camera input source selection. Only supported with use-gstreamer option.",
+                cxxopts::value<std::string>()->default_value(Configuration::DEFAULT_CAMERA_INPUTSOURCE))
 
                 // Splash video.
                 ("splash-video,s",
-                 boost::program_options::value<std::string>()->default_value(Configuration::DEFAULT_VIDEO_SPLASH_PATH),
-                 "File path for splash video.")
+                "File path for splash video.",
+                cxxopts::value<std::string>()->default_value(Configuration::DEFAULT_VIDEO_SPLASH_PATH))
 
                 // CBC device path.
                 ("cbc-device,d",
-                 boost::program_options::value<std::string>()->default_value(Configuration::DEFAULT_CBCDEVICE_PATH),
-                 "CBC device path.")
-                
-		("resume-sync,r",
-		 boost::program_options::value<std::string>()->default_value(Configuration::DEFAULT_RESUME_SYNC_PATH),
-		 "resume sync path.")
+                "CBC device path.",
+                cxxopts::value<std::string>()->default_value(Configuration::DEFAULT_CBCDEVICE_PATH))
+
+                ("resume-sync,r",
+                "resume sync path.",
+                cxxopts::value<std::string>()->default_value(Configuration::DEFAULT_RESUME_SYNC_PATH))
 
                 // Test CBC device path.
                 ("test-cbc-device,t",
-                 boost::program_options::value<std::string>()->default_value(Configuration::DEFAULT_TESTCBCDEVICE_PATH),
-                 "A test CBC file path.")
+                "A test CBC file path.",
+                cxxopts::value<std::string>()->default_value(Configuration::DEFAULT_TESTCBCDEVICE_PATH))
 
                 // Audio path - bootup sound.
                 (Configuration::KEY_BOOTUPSOUND,
-                 boost::program_options::value<std::string>()->default_value(Configuration::DEFAULT_AUDIO_SPLASHSOUND_PATH),
-                 "Audio file path for boot up sound.")
+                "Audio file path for boot up sound.",
+                cxxopts::value<std::string>()->default_value(Configuration::DEFAULT_AUDIO_SPLASHSOUND_PATH))
 
                 // Audio path - RVC sound.
                 (Configuration::KEY_RVCSOUND,
-                 boost::program_options::value<std::string>()->default_value(Configuration::DEFAULT_AUDIO_RVCSOUND_PATH),
-                 "Audio file path for RVC sound.")
+                "Audio file path for RVC sound.",
+                cxxopts::value<std::string>()->default_value(Configuration::DEFAULT_AUDIO_RVCSOUND_PATH))
 
                 // Display width
                 ("width,w",
-                 boost::program_options::value<unsigned int>()->default_value(Configuration::DEFAULT_DISPLAY_WIDTH),
-                 "Display width.")
+                "Display width.",
+                cxxopts::value<unsigned int>())
 
                 // Display height
                 ("height,h",
-                 boost::program_options::value<unsigned int>()->default_value(Configuration::DEFAULT_DISPLAY_HEIGHT),
-                 "Display height.")
+                "Display height.",
+                cxxopts::value<unsigned int>())
 
                 // GPIO number
                 (Configuration::KEY_GPIONUMBER,
-                 boost::program_options::value<int>()->default_value(Configuration::DEFAULT_GPIONUMBER),
-                 "GPIO number for KPI measurements. Negative values will be ignored.")
+                "GPIO number for KPI measurements. Negative values will be ignored.",
+                cxxopts::value<int>()->default_value(std::to_string(Configuration::DEFAULT_GPIONUMBER)))
 
                 // GPIO sustaining time.
                 (Configuration::KEY_GPIOSUSTAIN,
-                 boost::program_options::value<unsigned int>()->default_value(Configuration::DEFAULT_GPIOSUSTAIN),
-                 "GPIO sustaining time in ms for KPI measurements.")
+                "GPIO sustaining time in ms for KPI measurements.",
+                cxxopts::value<unsigned int>()->default_value(std::to_string(Configuration::DEFAULT_GPIOSUSTAIN)))
 
                 // Use GStreamer
                 (Configuration::KEY_USEGSTREAMER,
-                 boost::program_options::bool_switch()->default_value(Configuration::DEFAULT_USE_GSTREAMER),
-                 "Use GStreamer for auido, camera and video.")
+                "Use GStreamer for auido, camera and video.",
+                cxxopts::value<bool>()->default_value(Configuration::DEFAULT_USE_GSTREAMER))
 
 		// Custome CSI camera command
                 (Configuration::KEY_USECSICAM,
-                 boost::program_options::bool_switch()->default_value(Configuration::DEFAULT_USE_CSICAM),
-                 "Use GStreamer for auido, camera and video.")
+                "Use GStreamer for auido, camera and video.",
+                cxxopts::value<bool>()->default_value(Configuration::DEFAULT_USE_CSICAM))
 
 		// Custom GStreamer camera command.
                 (Configuration::KEY_GSTCAMCMD,
-                 boost::program_options::value<std::string>()->default_value(Configuration::DEFAULT_GSTCAMCMD),
-                 "Custom GStreamer camera command. Only supported with use-gstreamer option.");
+                "Custom GStreamer camera command. Only supported with use-gstreamer option.",
+                cxxopts::value<std::string>()->default_value(Configuration::DEFAULT_GSTCAMCMD));
 
-
-            boost::program_options::store(
-                boost::program_options::parse_command_line(argc, argv, *m_pDesc), m_VM);
-            boost::program_options::notify(m_VM);
+            m_presult = m_pDesc->parse(argc, argv);
+            checkCameraParameter(m_presult["camera-input"].as<std::string>());
 
              // Help.
-            if(m_VM.count("help"))
+            if(m_presult.count("help"))
             {
                 m_Valid = false;
-                printUsage();
+                std::cout << m_pDesc->help() << std::endl;
             }
-            else if(m_VM.count("version"))
+            else if(m_presult.count("version"))
             {
                 printVersion(argv[0]);
             }
@@ -342,12 +317,7 @@ namespace earlyapp
                 m_Valid = true;
             }
         }
-        catch(const boost::program_options::error& e)
-        {
-            handleProgramOptionException(e);
-            return false;
-        }
-        catch(const boost::bad_lexical_cast& e)
+        catch(const cxxopts::exceptions::exception& e)
         {
             handleProgramOptionException(e);
             return false;
@@ -366,7 +336,7 @@ namespace earlyapp
             && optStr.compare("test") != 0)
         {
             // Given option is not supported.
-            boost::program_options::error e(
+            cxxopts::exceptions::exception e(
                 std::string("Undefined camera input value: ")
                 .append(optStr));
             throw e;
@@ -388,11 +358,6 @@ namespace earlyapp
         // Not a valid option.
         m_Valid = false;
 
-        if(m_pDesc)
-        {
-            delete m_pDesc;
-            m_pDesc = nullptr;
-        }
     }
 
 } // namespace

@@ -27,8 +27,8 @@
 #pragma once
 
 #include <string>
-#include <boost/program_options.hpp>
-
+#include <cxxopts.hpp>
+#include <any>
 
 namespace earlyapp
 {
@@ -59,8 +59,8 @@ namespace earlyapp
         static const unsigned int DEFAULT_DISPLAY_HEIGHT;
         static const int DEFAULT_GPIONUMBER;
         static const useconds_t DEFAULT_GPIOSUSTAIN;
-        static const bool DEFAULT_USE_GSTREAMER;
-	static const bool DEFAULT_USE_CSICAM;
+        static const char* DEFAULT_USE_GSTREAMER;
+	      static const char* DEFAULT_USE_CSICAM;
         static const char* DEFAULT_GSTCAMCMD;
 
 
@@ -196,12 +196,12 @@ namespace earlyapp
         /**
           @brief Options description.
          */
-        boost::program_options::options_description* m_pDesc = nullptr;
+        std::unique_ptr<cxxopts::Options> m_pDesc;
 
         /**
-          @brief Option variables map.
+          @brief ParseResult.
          */
-        boost::program_options::variables_map m_VM;
+        cxxopts::ParseResult m_presult;
 
         /**
           @brief Is configuration valid.
