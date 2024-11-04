@@ -2,11 +2,11 @@ DISCONTINUATION OF PROJECT.
 
 This project will no longer be maintained by Intel.
 
-Intel has ceased development and contributions including, but not limited to, maintenance, bug fixes, new releases, or updates, to this project. 
+Intel has ceased development and contributions including, but not limited to, maintenance, bug fixes, new releases, or updates, to this project.
 
 Intel no longer accepts patches to this project.
 
-If you have an ongoing need to use this project, are interested in independently developing it, or would like to maintain patches for the open source software community, please create your own fork of this project. 
+If you have an ongoing need to use this project, are interested in independently developing it, or would like to maintain patches for the open source software community, please create your own fork of this project.
 # Early App
 
 ## Introduction
@@ -22,7 +22,6 @@ https://opensource.org/licenses/MIT
 
 ## Dependencies
 - CMake
-- Boost libraries
 - GStreamer
 - ALSA
 - Intel Media SDK
@@ -65,14 +64,14 @@ https://opensource.org/licenses/MIT
 ### Compilation options
  - USE_LOGOUTPUT
  : Enable detailed log output to standard out.
- 
+
   ```shell
   $ cmake -DUSE_LOGOUTPUT=ON ..
   ```
 
  - USE_DMESGLOG
  : Enable log output to dmesg.
- 
+
   ```shell
   $ cmake -DUSE_DMESGLOG=ON ..
   ```
@@ -91,7 +90,7 @@ https://opensource.org/licenses/MIT
    Pre-requisite: export XDG_RUNTIME_DIR, WAYLAND_DISPLAY and GST_PLUGIN_PATH
 
   ```shell
-  $ src/earlyapp --use-gstreamer --camera-input test 
+  $ src/earlyapp --use-gstreamer --camera-input test
   ```
 
-To use earlyapp with CBC please refer to our Early App user guide. 
+To use earlyapp with CBC please refer to our Early App user guide.

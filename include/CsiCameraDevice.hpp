@@ -98,7 +98,7 @@ namespace earlyapp
         set_up m_csiParam;
 
 	/*
-          Boost thread.
+          Multi thread.
          */
         std::vector<std::thread> m_pThreadGrpCsiRVC;
         std::thread* m_pThreadCsiRVC = nullptr;

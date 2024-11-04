@@ -44,7 +44,6 @@ INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/include
     ${PROJECT_SOURCE_DIR}/include
     ${PROJECT_SOURCE_DIR}/ext/CameraICI/include
-    ${Boost_INCLUDE_DIRS}
     ${GST_INCLUDE_DIRS}
     ${LIBDRM_INCLUDE_DIRS})
 
@@ -67,11 +66,11 @@ LINK_LIBRARIES(
      stdc++
      pthread
      ${LIBDRM_LIBRARIES}
-     wayland-client 
-     drm 
-     drm_intel 
-     EGL 
-     GLESv2 
+     wayland-client
+     drm
+     drm_intel
+     EGL
+     GLESv2
      wayland-egl)
 
 

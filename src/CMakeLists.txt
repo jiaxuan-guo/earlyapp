@@ -32,15 +32,6 @@ SET(CMAKE_VERBOSE_MAKEFILE true)
 FIND_PACKAGE(PkgConfig REQUIRED)
 
 
-# Check Boost libraries
-FIND_PACKAGE(Boost REQUIRED
-    COMPONENTS
-    log
-    thread
-    system
-    program_options)
-
-
 # Source files.
 SET(EXE_MAIN main.cpp)
 SET(SRC_FILES
@@ -90,7 +81,6 @@ PKG_CHECK_MODULES(LIBVA REQUIRED libva)
 INCLUDE_DIRECTORIES(
     ${CMAKE_BINARY_DIR}/include
     ${PROJECT_SOURCE_DIR}/include
-    ${Boost_INCLUDE_DIRS}
     ${WAYLAND_INCLUDE_DIRS}
     ${GST_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/ext/MediaSDK/include
@@ -106,7 +96,6 @@ INCLUDE_DIRECTORIES(
 LINK_LIBRARIES(
     stdc++
     pthread
-    ${Boost_LIBRARIES}
     ${WAYLAND_LIBRARIES}
     ${GST_LIBRARIES}
     msdk

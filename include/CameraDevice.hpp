@@ -101,7 +101,7 @@ namespace earlyapp
         int m_stream_id = -1;
 
         /*
-          Boost thread.
+          Multi thread.
          */
         std::vector<std::thread> m_pThreadGrpRVC;
         std::thread* m_pThreadRVC = nullptr;

@@ -119,7 +119,7 @@ namespace earlyapp
         GMainLoop* m_pGSTLoop = nullptr;
 
         /*
-          Boost thread.
+          Multi thread.
          */
         std::vector<std::thread> m_pThreadGrp;
         std::thread* m_pThread = nullptr;
